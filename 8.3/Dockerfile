@@ -59,26 +59,26 @@ RUN docker-php-ext-configure \
   opcache --enable-opcache
 # Install required PHP extensions
 RUN docker-php-ext-install -j$(nproc) \
-  bcmath \
-  bz2 \
-  calendar \
-  exif \
-  gd \
-  gettext \
-  gmp \
-  intl \
-  mysqli \
-  opcache \
-  pdo_mysql \
-  pspell \
-  shmop \
-  soap \
-  sockets \
-  sysvmsg \
-  sysvsem \
-  sysvshm \
-  tidy \
-  xsl \
+#   bcmath \
+#   bz2 \
+#   calendar \
+#   exif \
+#   gd \
+#   gettext \
+#   gmp \
+#   intl \
+#   mysqli \
+#   opcache \
+#   pdo_mysql \
+#   pspell \
+#   shmop \
+#   soap \
+#   sockets \
+#   sysvmsg \
+#   sysvsem \
+#   sysvshm \
+#   tidy \
+#   xsl \
   zip \
   pcntl \
   mbstring \
