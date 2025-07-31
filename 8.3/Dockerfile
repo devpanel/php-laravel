@@ -47,7 +47,46 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     libcurl4-openssl-dev \
     libbz2-dev \
-    && docker-php-ext-install pdo_mysql mbstring tokenizer xml ctype json openssl fileinfo bcmath curl zip
+    && docker-php-ext-install      
+    && rm -rf /var/lib/apt/lists/*
+# Configure the gd library
+RUN docker-php-ext-configure \
+  gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ --with-webp=/usr/include/
+
+RUN docker-php-ext-configure \
+  opcache --enable-opcache
+# Install required PHP extensions
+RUN docker-php-ext-install -j$(nproc) \
+  bcmath \
+  bz2 \
+  calendar \
+  exif \
+  gd \
+  gettext \
+  gmp \
+  intl \
+  mysqli \
+  opcache \
+  pdo_mysql \
+  pspell \
+  shmop \
+  soap \
+  sockets \
+  sysvmsg \
+  sysvsem \
+  sysvshm \
+  tidy \
+  xsl \
+  zip \
+  pcntl \
+  mbstring \
+  xml \
+  ctype \
+  json \
+  openssl \
+  fileinfo \
+  curl \
+  tokenizer
 
 RUN a2enmod rewrite
 
