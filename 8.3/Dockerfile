@@ -70,10 +70,6 @@ RUN dpkg -i /tmp/code-server_${CODESERVER_VERSION}_amd64.deb \
 #== Install Composer
 RUN curl -fsSL https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer --version=2.7.7
 
-#== Install DevPanel CLI client
-COPY bin/devpanel /usr/local/bin/devpanel
-RUN chmod +x /usr/local/bin/devpanel \
-  && devpanel version
 WORKDIR ${APP_ROOT}
 
 USER ${USER}
