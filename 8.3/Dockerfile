@@ -47,7 +47,6 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     libcurl4-openssl-dev \
     libbz2-dev \
-    && docker-php-ext-install      
     && rm -rf /var/lib/apt/lists/*
 # Configure the gd library
 RUN docker-php-ext-configure \
