@@ -128,4 +128,4 @@ COPY scripts /scripts
 
 RUN sudo rm -rf ${APP_ROOT} && sudo sudo mkdir -p ${APP_ROOT}
 
-CMD ["sudo", "-E", "/bin/bash", "/scripts/apache-start.sh" ]
+CMD ["sudo", "-E", "/bin/bash", "/scripts/docker-entrypoint.sh" ]
