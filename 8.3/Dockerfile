@@ -116,7 +116,7 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | b
 RUN curl -fsSL https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer --version=2.7.7
 RUN composer global require laravel/installer
 RUN cp ~/.composer/vendor/bin/laravel /usr/local/bin/laravel
-
+RUN touch ~/log
 WORKDIR ${APP_ROOT}
 
 USER ${USER}
