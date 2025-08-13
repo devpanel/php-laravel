@@ -88,19 +88,19 @@ RUN mkdir -p ${APP_ROOT} \
     && chown -R ${UID}:${GID} ${APP_ROOT}
 
 # #== Install Codeserver [AMD Chip]
-ARG CODESERVER_VERSION="4.99.4"
-RUN wget -O /tmp/code-server_${CODESERVER_VERSION}_amd64.deb https://github.com/coder/code-server/releases/download/v${CODESERVER_VERSION}/code-server_${CODESERVER_VERSION}_amd64.deb
-RUN dpkg -i /tmp/code-server_${CODESERVER_VERSION}_amd64.deb \
-    && rm /tmp/code-server_${CODESERVER_VERSION}_amd64.deb
+# ARG CODESERVER_VERSION="4.99.4"
+# RUN wget -O /tmp/code-server_${CODESERVER_VERSION}_amd64.deb https://github.com/coder/code-server/releases/download/v${CODESERVER_VERSION}/code-server_${CODESERVER_VERSION}_amd64.deb
+# RUN dpkg -i /tmp/code-server_${CODESERVER_VERSION}_amd64.deb \
+#     && rm /tmp/code-server_${CODESERVER_VERSION}_amd64.deb
 
-# RUN mkdir -p $NVM_DIR
-# RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash \
-#     && . "$NVM_DIR/nvm.sh" \
-#     && nvm install $NODE_VERSION_20 \
-#     && nvm install $NODE_VERSION_22 \
-#     && nvm install $NODE_VERSION_24 \
-#     && nvm alias default $NODE_VERSION_24 \
-#     && nvm use default
+RUN mkdir -p $NVM_DIR
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash \
+    && . "$NVM_DIR/nvm.sh" \
+    && nvm install $NODE_VERSION_20 \
+    && nvm install $NODE_VERSION_22 \
+    && nvm install $NODE_VERSION_24 \
+    && nvm alias default $NODE_VERSION_24 \
+    && nvm use default
 
 # # RUN cp ~/.composer/vendor/bin/laravel /usr/local/bin/laravel
 RUN touch ~/log
@@ -108,7 +108,7 @@ WORKDIR ${APP_ROOT}
 
 USER ${USER}
 
-RUN bash ~/.bashrc
+# RUN bash ~/.bashrc
 #== Start apache.
 COPY templates /templates
 COPY scripts /scripts
