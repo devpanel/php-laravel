@@ -14,9 +14,11 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     libjpeg-dev \
     libfreetype6-dev \
-    nodejs \
-    npm \
     && docker-php-ext-install pdo pdo_mysql mbstring zip exif pcntl gd
+
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+    && apt-get install -y nodejs \
+    && ln -s /usr/bin/npm /usr/local/bin/npm
 
 # Cài đặt Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
