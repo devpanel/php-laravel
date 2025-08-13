@@ -22,7 +22,7 @@ ENV PHP_UPLOAD_MAX_FILESIZE=64M
 ENV PHP_POST_MAX_SIZE=64M
 ENV PHP_CLEAR_ENV=false
 ENV SERVER_NAME=default
-ENV NVM_DIR=~/.nvm
+ENV NVM_DIR=/root/.nvm
 ENV NODE_VERSION_24=24.5.0
 ENV NODE_VERSION_22=22.18.0
 ENV NODE_VERSION_20=20.19.4
@@ -114,9 +114,9 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | b
 
 #== Install Composer & Laravel command
 RUN curl -fsSL https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer --version=2.7.7
-RUN composer global require laravel/installer
-RUN cp ~/.composer/vendor/bin/laravel /usr/local/bin/laravel
-RUN touch ~/log
+# RUN composer global require laravel/installer
+# RUN cp ~/.composer/vendor/bin/laravel /usr/local/bin/laravel
+# RUN touch ~/log
 WORKDIR ${APP_ROOT}
 
 USER ${USER}
