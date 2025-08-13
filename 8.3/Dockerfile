@@ -50,6 +50,7 @@ RUN apt-get update && apt-get install -y \
     git \
     curl \
     sudo \
+    vim \
     zip \
     && docker-php-ext-configure gd --with-freetype --with-jpeg
 RUN docker-php-ext-install -j$(nproc) \
@@ -75,6 +76,7 @@ RUN docker-php-ext-install -j$(nproc) \
 RUN a2enmod rewrite
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+RUN composer global require laravel/installer
 
 RUN groupadd -g ${GID} ${GROUP} \
     && useradd --system --shell /bin/bash --uid ${UID} --gid ${GROUP}  --create-home --home-dir /home/${USER} ${USER} \
@@ -85,11 +87,11 @@ RUN groupadd -g ${GID} ${GROUP} \
 RUN mkdir -p ${APP_ROOT} \
     && chown -R ${UID}:${GID} ${APP_ROOT}
 
-# # #== Install Codeserver [AMD Chip]
-# ARG CODESERVER_VERSION="4.99.4"
-# RUN wget -O /tmp/code-server_${CODESERVER_VERSION}_amd64.deb https://github.com/coder/code-server/releases/download/v${CODESERVER_VERSION}/code-server_${CODESERVER_VERSION}_amd64.deb
-# RUN dpkg -i /tmp/code-server_${CODESERVER_VERSION}_amd64.deb \
-#     && rm /tmp/code-server_${CODESERVER_VERSION}_amd64.deb
+# #== Install Codeserver [AMD Chip]
+ARG CODESERVER_VERSION="4.99.4"
+RUN wget -O /tmp/code-server_${CODESERVER_VERSION}_amd64.deb https://github.com/coder/code-server/releases/download/v${CODESERVER_VERSION}/code-server_${CODESERVER_VERSION}_amd64.deb
+RUN dpkg -i /tmp/code-server_${CODESERVER_VERSION}_amd64.deb \
+    && rm /tmp/code-server_${CODESERVER_VERSION}_amd64.deb
 
 # RUN mkdir -p $NVM_DIR
 # RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash \
@@ -100,9 +102,6 @@ RUN mkdir -p ${APP_ROOT} \
 #     && nvm alias default $NODE_VERSION_24 \
 #     && nvm use default
 
-# #== Install Composer & Laravel command
-# RUN curl -fsSL https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer --version=2.7.7
-# # RUN composer global require laravel/installer
 # # RUN cp ~/.composer/vendor/bin/laravel /usr/local/bin/laravel
 RUN touch ~/log
 WORKDIR ${APP_ROOT}
