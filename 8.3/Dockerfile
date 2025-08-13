@@ -31,7 +31,6 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
 # Cài đặt Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN composer global require laravel/installer
-ENV PATH="$PATH:/root/.composer/vendor/bin"
 
 RUN echo '<Directory /var/www/html>' \
          '\n\tOptions Indexes FollowSymLinks' \
@@ -51,6 +50,7 @@ RUN chown -R ${USER}:${GROUP} /home/${USER} /var/www/html
 USER ${USER}
 # Tạo thư mục Laravel app
 RUN touch ~/log
+ENV PATH="$PATH:/root/.composer/vendor/bin"
 WORKDIR /var/www/html
 
 # Cổng mặc định
