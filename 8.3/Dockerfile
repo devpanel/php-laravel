@@ -33,60 +33,48 @@ ENV CODES_USER_DATA_DIR=$APP_ROOT/.vscode
 ENV CODES_ENABLE=yes
 
 RUN apt-get update && apt-get install -y \
-    ca-certificates \
+    libzip-dev \
     libpng-dev \
     libjpeg-dev \
-    libjpeg62-turbo-dev \
-    libwebp-dev \
     libfreetype6-dev \
     libonig-dev \
     libxml2-dev \
-    zip \
+    libicu-dev \
+    libcurl4-openssl-dev \
+    libbz2-dev \
+    libxslt1-dev \
+    libsqlite3-dev \
+    libpq-dev \
+    libmagickwand-dev \
     unzip \
     git \
     curl \
-    wget \
-    libzip-dev \
-    libssl-dev \
-    libcurl4-openssl-dev \
-    libbz2-dev \
     sudo \
-    && rm -rf /var/lib/apt/lists/*
-# Configure the gd library
-RUN docker-php-ext-configure \
-  gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ --with-webp=/usr/include/
-
-RUN docker-php-ext-configure \
-  opcache --enable-opcache
-# Install required PHP extensions
+    zip \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg
 RUN docker-php-ext-install -j$(nproc) \
-  bcmath \
-  bz2 \
-  calendar \
-  exif \
-  gd \
-  gettext \
-  intl \
-  mysqli \
-  opcache
-
-RUN docker-php-ext-install -j$(nproc) \
-  pdo_mysql \
-  shmop \
-  soap \
-  sockets \
-  sysvmsg \
-  sysvsem \
-  sysvshm \
-  zip \
-  pcntl \
-  mbstring \
-  xml \
-  ctype \
-  fileinfo \
-  curl
-
+    bcmath \
+    bz2 \
+    calendar \
+    curl \
+    dom \
+    exif \
+    fileinfo \
+    gd \
+    gettext \
+    intl \
+    mbstring \
+    mysqli \
+    opcache \
+    pdo \
+    pdo_mysql \
+    xml \
+    zip \
+    && pecl install imagick \
+    && docker-php-ext-enable imagick
 RUN a2enmod rewrite
+
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 RUN groupadd -g ${GID} ${GROUP} \
     && useradd --system --shell /bin/bash --uid ${UID} --gid ${GROUP}  --create-home --home-dir /home/${USER} ${USER} \
@@ -97,26 +85,26 @@ RUN groupadd -g ${GID} ${GROUP} \
 RUN mkdir -p ${APP_ROOT} \
     && chown -R ${UID}:${GID} ${APP_ROOT}
 
-# #== Install Codeserver [AMD Chip]
-ARG CODESERVER_VERSION="4.99.4"
-RUN wget -O /tmp/code-server_${CODESERVER_VERSION}_amd64.deb https://github.com/coder/code-server/releases/download/v${CODESERVER_VERSION}/code-server_${CODESERVER_VERSION}_amd64.deb
-RUN dpkg -i /tmp/code-server_${CODESERVER_VERSION}_amd64.deb \
-    && rm /tmp/code-server_${CODESERVER_VERSION}_amd64.deb
+# # #== Install Codeserver [AMD Chip]
+# ARG CODESERVER_VERSION="4.99.4"
+# RUN wget -O /tmp/code-server_${CODESERVER_VERSION}_amd64.deb https://github.com/coder/code-server/releases/download/v${CODESERVER_VERSION}/code-server_${CODESERVER_VERSION}_amd64.deb
+# RUN dpkg -i /tmp/code-server_${CODESERVER_VERSION}_amd64.deb \
+#     && rm /tmp/code-server_${CODESERVER_VERSION}_amd64.deb
 
-RUN mkdir -p $NVM_DIR
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash \
-    && . "$NVM_DIR/nvm.sh" \
-    && nvm install $NODE_VERSION_20 \
-    && nvm install $NODE_VERSION_22 \
-    && nvm install $NODE_VERSION_24 \
-    && nvm alias default $NODE_VERSION_24 \
-    && nvm use default
+# RUN mkdir -p $NVM_DIR
+# RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash \
+#     && . "$NVM_DIR/nvm.sh" \
+#     && nvm install $NODE_VERSION_20 \
+#     && nvm install $NODE_VERSION_22 \
+#     && nvm install $NODE_VERSION_24 \
+#     && nvm alias default $NODE_VERSION_24 \
+#     && nvm use default
 
-#== Install Composer & Laravel command
-RUN curl -fsSL https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer --version=2.7.7
-# RUN composer global require laravel/installer
-# RUN cp ~/.composer/vendor/bin/laravel /usr/local/bin/laravel
-# RUN touch ~/log
+# #== Install Composer & Laravel command
+# RUN curl -fsSL https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer --version=2.7.7
+# # RUN composer global require laravel/installer
+# # RUN cp ~/.composer/vendor/bin/laravel /usr/local/bin/laravel
+# # RUN touch ~/log
 WORKDIR ${APP_ROOT}
 
 USER ${USER}
