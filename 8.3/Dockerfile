@@ -1,118 +1,40 @@
+# Sử dụng image PHP 8.3 với Apache
 FROM php:8.3-apache
 
-#== System Environments
-ENV USER=www
-ENV GROUP=www
-ENV UID=1000
-ENV GID=1000
-ENV HOME=/home/www
-ENV SHELL=/bin/bash
-
-#== Default Environments
-ENV APP_ROOT=/var/www/html
-ENV WEB_ROOT=$APP_ROOT
-ENV PHP_CUSTOM_INI=$APP_ROOT/php.ini
-ENV PHP_EXT_DIR=/usr/local/etc/php/conf.d
-
-ENV PHP_MEMORY_LIMIT=4096M
-ENV PHP_MAX_EXECUTION_TIME=600
-ENV PHP_MAX_INPUT_TIME=600
-ENV PHP_MAX_INPUT_VARS=3000
-ENV PHP_UPLOAD_MAX_FILESIZE=64M
-ENV PHP_POST_MAX_SIZE=64M
-ENV PHP_CLEAR_ENV=false
-ENV SERVER_NAME=default
-ENV NVM_DIR=/root/.nvm
-ENV NODE_VERSION_24=24.5.0
-ENV NODE_VERSION_22=22.18.0
-ENV NODE_VERSION_20=20.19.4
-
-ENV CODES_PORT=8080
-ENV CODES_WORKING_DIR=$APP_ROOT
-ENV CODES_USER_DATA_DIR=$APP_ROOT/.vscode
-ENV CODES_ENABLE=yes
-
+# Cài đặt các tiện ích hệ thống
 RUN apt-get update && apt-get install -y \
-    libzip-dev \
+    git \
+    unzip \
+    zip \
+    curl \
     libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
     libonig-dev \
     libxml2-dev \
-    libicu-dev \
-    libcurl4-openssl-dev \
-    libbz2-dev \
-    libxslt1-dev \
-    libsqlite3-dev \
+    libzip-dev \
     libpq-dev \
-    libmagickwand-dev \
-    unzip \
-    git \
-    curl \
-    sudo \
-    vim \
-    zip \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg
-RUN docker-php-ext-install -j$(nproc) \
-    bcmath \
-    bz2 \
-    calendar \
-    curl \
-    dom \
-    exif \
-    fileinfo \
-    gd \
-    gettext \
-    intl \
-    mbstring \
-    mysqli \
-    opcache \
-    pdo \
-    pdo_mysql \
-    xml \
-    zip \
-    && pecl install imagick \
-    && docker-php-ext-enable imagick
+    libjpeg-dev \
+    libfreetype6-dev \
+    nodejs \
+    npm \
+    && docker-php-ext-install pdo pdo_mysql mbstring zip exif pcntl gd
+
+# Cài đặt Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Tạo thư mục Laravel app
+WORKDIR /var/www/html
+
+# Bật mod_rewrite cho Apache
 RUN a2enmod rewrite
 
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-RUN composer global require laravel/installer
+# Thiết lập cấu hình Apache cho Laravel
+RUN echo '<Directory /var/www/html>' \
+         '\n\tOptions Indexes FollowSymLinks' \
+         '\n\tAllowOverride All' \
+         '\n\tRequire all granted' \
+         '\n</Directory>' \
+         > /etc/apache2/conf-available/laravel.conf \
+    && a2enconf laravel
 
-RUN groupadd -g ${GID} ${GROUP} \
-    && useradd --system --shell /bin/bash --uid ${UID} --gid ${GROUP}  --create-home --home-dir /home/${USER} ${USER} \
-    && adduser ${USER} www-data \
-    && usermod -aG sudo ${USER} \
-    && echo "www ALL=(ALL:ALL) NOPASSWD:ALL" >> /etc/sudoers
-
-RUN mkdir -p ${APP_ROOT} \
-    && chown -R ${UID}:${GID} ${APP_ROOT}
-
-# #== Install Codeserver [AMD Chip]
-# ARG CODESERVER_VERSION="4.99.4"
-# RUN wget -O /tmp/code-server_${CODESERVER_VERSION}_amd64.deb https://github.com/coder/code-server/releases/download/v${CODESERVER_VERSION}/code-server_${CODESERVER_VERSION}_amd64.deb
-# RUN dpkg -i /tmp/code-server_${CODESERVER_VERSION}_amd64.deb \
-#     && rm /tmp/code-server_${CODESERVER_VERSION}_amd64.deb
-
-RUN mkdir -p $NVM_DIR
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash \
-    && . "$NVM_DIR/nvm.sh" \
-    && nvm install $NODE_VERSION_20 \
-    && nvm install $NODE_VERSION_22 \
-    && nvm install $NODE_VERSION_24 \
-    && nvm alias default $NODE_VERSION_24 \
-    && nvm use default
-
-# # RUN cp ~/.composer/vendor/bin/laravel /usr/local/bin/laravel
-RUN touch ~/log
-WORKDIR ${APP_ROOT}
-
-USER ${USER}
-
-# RUN bash ~/.bashrc
-#== Start apache.
-COPY templates /templates
-COPY scripts /scripts
-
-RUN sudo rm -rf ${APP_ROOT} && sudo sudo mkdir -p ${APP_ROOT}
-
-CMD ["sudo", "-E", "/bin/bash", "/scripts/docker-entrypoint.sh" ]
+# Cổng mặc định
+EXPOSE 80
