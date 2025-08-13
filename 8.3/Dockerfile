@@ -30,7 +30,9 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
 
 # Cài đặt Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-# Thiết lập cấu hình Apache cho Laravel
+RUN composer global require laravel/installer
+ENV PATH="$PATH:/root/.composer/vendor/bin"
+
 RUN echo '<Directory /var/www/html>' \
          '\n\tOptions Indexes FollowSymLinks' \
          '\n\tAllowOverride All' \
@@ -44,6 +46,8 @@ RUN groupadd -g ${GID} ${GROUP} \
     && adduser ${USER} www-data \
     && usermod -aG sudo ${USER} \
     && echo "www ALL=(ALL:ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+RUN chown -R ${USER}:${GROUP} /home/${USER} /var/www/html
 USER ${USER}
 # Tạo thư mục Laravel app
 RUN touch ~/log
